@@ -1,0 +1,9 @@
+C:\Users\LORDwin\source\repos\Tcp.Server\bin\Debug\TcpServer.exe.config
+C:\Users\LORDwin\source\repos\Tcp.Server\bin\Debug\TcpServer.exe
+C:\Users\LORDwin\source\repos\Tcp.Server\bin\Debug\TcpServer.pdb
+C:\Users\LORDwin\source\repos\Tcp.Server\bin\Debug\SomeProject.Library.dll
+C:\Users\LORDwin\source\repos\Tcp.Server\bin\Debug\SomeProject.Library.pdb
+C:\Users\LORDwin\source\repos\Tcp.Server\obj\Debug\TcpServer.csprojAssemblyReference.cache
+C:\Users\LORDwin\source\repos\Tcp.Server\obj\Debug\TcpServer.csproj.CopyComplete
+C:\Users\LORDwin\source\repos\Tcp.Server\obj\Debug\TcpServer.exe
+C:\Users\LORDwin\source\repos\Tcp.Server\obj\Debug\TcpServer.pdb
