@@ -3,3 +3,8 @@ C:\Users\LORDwin\source\repos\Net.Library\bin\Debug\SomeProject.Library.pdb
 C:\Users\LORDwin\source\repos\Net.Library\obj\Debug\Library.csprojAssemblyReference.cache
 C:\Users\LORDwin\source\repos\Net.Library\obj\Debug\SomeProject.Library.dll
 C:\Users\LORDwin\source\repos\Net.Library\obj\Debug\SomeProject.Library.pdb
+C:\Users\LORDwin\source\repos\ClientServer\Net.Library\bin\Debug\SomeProject.Library.dll
+C:\Users\LORDwin\source\repos\ClientServer\Net.Library\bin\Debug\SomeProject.Library.pdb
+C:\Users\LORDwin\source\repos\ClientServer\Net.Library\obj\Debug\Library.csprojAssemblyReference.cache
+C:\Users\LORDwin\source\repos\ClientServer\Net.Library\obj\Debug\SomeProject.Library.dll
+C:\Users\LORDwin\source\repos\ClientServer\Net.Library\obj\Debug\SomeProject.Library.pdb

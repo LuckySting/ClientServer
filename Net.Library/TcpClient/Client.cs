@@ -5,18 +5,24 @@ using System.IO;
 
 namespace SomeProject.Library.Client
 {
+    /// <summary>
+    /// Класс клиента
+    /// </summary>
     public class Client
     {
         public TcpClient tcpClient;
 
-        public OperationResult ReceiveMessageFromServer()
+        /// <summary>
+        /// Принимает сообщение от сервера
+        /// </summary>
+        /// <param name="stream">Сетевой поток</param>
+        /// <returns>Результат</returns>
+        private OperationResult ReceiveMessageFromServer(NetworkStream stream)
         {
             try
             {
-                tcpClient = new TcpClient("127.0.0.1", 8080);
                 StringBuilder recievedMessage = new StringBuilder();
                 byte[] data = new byte[256];
-                NetworkStream stream = tcpClient.GetStream();
 
                 do
                 {
@@ -27,7 +33,17 @@ namespace SomeProject.Library.Client
                 stream.Close();
                 tcpClient.Close();
 
-                return new OperationResult(Result.OK, recievedMessage.ToString());
+                if (recievedMessage.ToString() == "Success")
+                {
+                    return new OperationResult(Result.OK, recievedMessage.ToString());
+                } else
+                {
+                    return new OperationResult(Result.Fail, recievedMessage.ToString());
+                }
+            }
+            catch (IOException)
+            {
+                return new OperationResult(Result.Fail, "Сервер не отвечает");
             }
             catch (Exception e)
             {
@@ -35,6 +51,11 @@ namespace SomeProject.Library.Client
             }
         }
 
+        /// <summary>
+        /// Отправляет текстовое сообщение на сервер
+        /// </summary>
+        /// <param name="message">Текстовое сообщение</param>
+        /// <returns>Результат</returns>
         public OperationResult SendMessageToServer(string message)
         {
             try
@@ -47,9 +68,14 @@ namespace SomeProject.Library.Client
                 header.CopyTo(packet, 0);
                 data.CopyTo(packet, header.Length);
                 stream.Write(packet, 0, packet.Length);
+                var result = ReceiveMessageFromServer(stream);
                 stream.Close();
                 tcpClient.Close();
-                return new OperationResult(Result.OK, "") ;
+                return result;
+            }
+            catch (IOException)
+            {
+                return new OperationResult(Result.Fail, "Сервер не отвечает");
             }
             catch (Exception e)
             {
@@ -57,6 +83,12 @@ namespace SomeProject.Library.Client
             }
         }
 
+        /// <summary>
+        /// Отправляет файл на сервер
+        /// </summary>
+        /// <param name="filePath">Путь к файлу</param>
+        /// <param name="extention">Разрешение файла</param>
+        /// <returns>Результат</returns>
         public OperationResult SendFileToServer(string filePath, string extention)
         {
             try
@@ -72,9 +104,14 @@ namespace SomeProject.Library.Client
                 data.CopyTo(packet, header.Length);
                 stream.Write(packet, 0, (packet.Length));
                 fileStream.Close();
+                var result = ReceiveMessageFromServer(stream);
                 stream.Close();
                 tcpClient.Close();
-                return new OperationResult(Result.OK, "");
+                return result;
+            }
+            catch (IOException)
+            {
+                return new OperationResult(Result.Fail, "Сервер не отвечает");
             }
             catch (Exception e)
             {

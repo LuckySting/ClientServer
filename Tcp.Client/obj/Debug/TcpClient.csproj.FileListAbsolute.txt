@@ -10,3 +10,15 @@ C:\Users\LORDwin\source\repos\Tcp.Client\bin\Debug\SomeProject.Library.pdb
 C:\Users\LORDwin\source\repos\Tcp.Client\obj\Debug\TcpClient.csproj.CopyComplete
 C:\Users\LORDwin\source\repos\Tcp.Client\obj\Debug\TcpClient.exe
 C:\Users\LORDwin\source\repos\Tcp.Client\obj\Debug\TcpClient.pdb
+C:\Users\LORDwin\source\repos\ClientServer\Tcp.Client\bin\Debug\TcpClient.exe.config
+C:\Users\LORDwin\source\repos\ClientServer\Tcp.Client\bin\Debug\TcpClient.exe
+C:\Users\LORDwin\source\repos\ClientServer\Tcp.Client\bin\Debug\TcpClient.pdb
+C:\Users\LORDwin\source\repos\ClientServer\Tcp.Client\bin\Debug\SomeProject.Library.dll
+C:\Users\LORDwin\source\repos\ClientServer\Tcp.Client\bin\Debug\SomeProject.Library.pdb
+C:\Users\LORDwin\source\repos\ClientServer\Tcp.Client\obj\Debug\TcpClient.csprojAssemblyReference.cache
+C:\Users\LORDwin\source\repos\ClientServer\Tcp.Client\obj\Debug\SomeProject.TcpClient.ClientMainWindow.resources
+C:\Users\LORDwin\source\repos\ClientServer\Tcp.Client\obj\Debug\SomeProject.TcpClient.Properties.Resources.resources
+C:\Users\LORDwin\source\repos\ClientServer\Tcp.Client\obj\Debug\TcpClient.csproj.GenerateResource.cache
+C:\Users\LORDwin\source\repos\ClientServer\Tcp.Client\obj\Debug\TcpClient.csproj.CopyComplete
+C:\Users\LORDwin\source\repos\ClientServer\Tcp.Client\obj\Debug\TcpClient.exe
+C:\Users\LORDwin\source\repos\ClientServer\Tcp.Client\obj\Debug\TcpClient.pdb

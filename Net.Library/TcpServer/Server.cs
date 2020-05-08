@@ -9,15 +9,20 @@ using System.Threading.Tasks;
 
 namespace SomeProject.Library.Server
 {
+    /// <summary>
+    /// Класс сервера для принятия файлов и текстовых сообщений
+    /// </summary>
     public class Server
     {
         static string directory;
         static int currFileNamber;
+        static int maxConnections = 3;
+        static int currentConnections = 0;
         TcpListener serverListener;
 
         public Server()
         {
-            directory = DateTime.Today.ToString("yyyy-mm-dd");
+            directory = DateTime.Today.ToString("yyyy-MM-dd");
             if (!Directory.Exists(directory))
             {
                 Directory.CreateDirectory(directory);
@@ -29,6 +34,10 @@ namespace SomeProject.Library.Server
             serverListener = new TcpListener(IPAddress.Loopback, 8080);
         }
 
+        /// <summary>
+        /// Логирует завершение сервера
+        /// </summary>
+        /// <returns>Сервер завершен успешно?</returns>
         public bool TurnOffListener()
         {
             try
@@ -44,6 +53,10 @@ namespace SomeProject.Library.Server
             }
         }
 
+        /// <summary>
+        /// Запуск сервера на прослушиваение порта 8080, каждый клиент обрабатывается отдельным потоком
+        /// </summary>
+        /// <returns></returns>
         public async Task TurnOnListener()
         {
             try
@@ -52,11 +65,10 @@ namespace SomeProject.Library.Server
                     serverListener.Start();
                 while (true)
                 {
-                    OperationResult result = await ReceivePacketFromClient();
-                    if (result.Result == Result.Fail)
-                        Console.WriteLine("Unexpected error: " + result.Message);
-                    else
-                        Console.WriteLine("New message from client: " + result.Message);
+                    Console.WriteLine("Waiting for connections...");
+                    TcpClient client = await serverListener.AcceptTcpClientAsync();
+                    Console.WriteLine("Accepted connection: " + (currentConnections + 1));
+                    _ = ReceivePacketFromClient(client);
                 }
             }
             catch (Exception e)
@@ -65,14 +77,25 @@ namespace SomeProject.Library.Server
             }
         }
 
-        public async Task<OperationResult> ReceivePacketFromClient()
+        /// <summary>
+        /// Асинхронно принимает пакет от клиента, определяет его тип и вызывает соответствующий обработчик
+        /// </summary>
+        /// <param name="client">клиент</param>
+        public async Task ReceivePacketFromClient(TcpClient client)
         {
             try
             {
-                Console.WriteLine("Waiting for connections...");
+                
                 StringBuilder recievedMessage = new StringBuilder();
-                TcpClient client = serverListener.AcceptTcpClient();
 
+                Interlocked.Increment(ref currentConnections);
+                int clientNum = currentConnections;
+                if (currentConnections == maxConnections)
+                {
+                    throw new Exception("Client " + clientNum + " declined: Server is overloaded");
+                }
+                //TODO:  Убрать задержку
+                await Task.Delay(10000);
                 byte[] data = new byte[1];
                 NetworkStream stream = client.GetStream();
 
@@ -88,34 +111,52 @@ namespace SomeProject.Library.Server
 
                 var header = recievedMessage.ToString().Trim(new char[] { '<', '>' }).Split(',');
 
+                OperationResult resp;
+
                 if (header[0] == "type=text")
                 {
-                    var resp = await ReceiveMessageFromClient(stream);
-                    stream.Close();
-                    client.Close();
-                    return resp;
+                    resp = await ReceiveMessageFromClient(stream);
                 } else if (header[0] == "type=file")
                 {
-                    var resp = await ReceiveFileFromClient(stream, header[1]);
-                    stream.Close();
-                    client.Close();
-                    return resp;
+                    resp = await ReceiveFileFromClient(stream, header[1]);
                 } else
                 {
-                    throw new Exception("Unknown packet type");
+                    resp = new OperationResult(Result.Fail, "Unknown packet type");
                 }
+
+                
+
+                if (resp.Result == Result.OK)
+                {
+                    Console.WriteLine("New message from client " + clientNum + ": " + resp.Message);
+                    _ = await SendMessageToClient(stream, "Success");
+                } else
+                {
+                    _ = await SendMessageToClient(stream, resp.Message);
+                }
+
+                stream.Close();
             }
             catch (Exception e)
             {
-                return new OperationResult(Result.Fail, e.Message);
+                Console.WriteLine("Error: " + e.Message);
+            }
+            finally
+            {
+                Interlocked.Decrement(ref currentConnections);
+                client.Close();
             }
         }
 
+        /// <summary>
+        /// Асинхронно принимает текстовое сообщение
+        /// </summary>
+        /// <param name="stream">Сетевой поток клиента</param>
+        /// <returns>Результат операции</returns>
         public async Task<OperationResult> ReceiveMessageFromClient(NetworkStream stream)
         {
             try
             {
-                Console.WriteLine("Message received!");
                 StringBuilder recievedMessage = new StringBuilder();
 
                 byte[] data = new byte[256];
@@ -135,11 +176,15 @@ namespace SomeProject.Library.Server
             }
         }
 
+        /// <summary>
+        /// Асинхронно принимает файл от клиента
+        /// </summary>
+        /// <param name="stream">Сетевой поток клиента</param>
+        /// <param name="extention">Расширение файла</param>
         public async Task<OperationResult> ReceiveFileFromClient(NetworkStream stream, string extention)
         {
             try
             {
-                Console.WriteLine("File received!");
                 var ext = extention.Split('=')[1];
                 var fileNumber = Interlocked.Increment(ref currFileNamber);
                 var fileName = "File" + fileNumber + "." + ext;
@@ -162,7 +207,7 @@ namespace SomeProject.Library.Server
                 }
                 while (stream.DataAvailable);
 
-                fileStream.Write(file.ToArray(), 0, file.Count);
+                await fileStream.WriteAsync(file.ToArray(), 0, file.Count);
 
                 fileStream.Close();
 
@@ -174,24 +219,25 @@ namespace SomeProject.Library.Server
             }
         }
 
-        public OperationResult SendMessageToClient(string message)
+        /// <summary>
+        /// Отправляет сообщение клиенту
+        /// </summary>
+        /// <param name="message">сообщение</param>
+        /// <returns></returns>
+        public async Task<OperationResult> SendMessageToClient(NetworkStream stream, string message)
         {
             try
             {
-                TcpClient client = serverListener.AcceptTcpClient();
-                NetworkStream stream = client.GetStream();
-
                 byte[] data = Encoding.UTF8.GetBytes(message);
                 stream.Write(data, 0, data.Length);
-
                 stream.Close();
-                client.Close();
+                return new OperationResult(Result.OK, "");
             }
             catch (Exception e)
             {
+                stream.Close();
                 return new OperationResult(Result.Fail, e.Message);
             }
-            return new OperationResult(Result.OK, "");
         }
     }
 }
